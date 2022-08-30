@@ -23,6 +23,18 @@ class D2GoPage extends StatefulWidget {
   State<D2GoPage> createState() => _D2GoPageState();
 }
 
+/* 
+TODO fix keypoints. Figure out why is shown to work in https://github.com/tsubauaaa/flutter_d2go/tree/master/example
+https://github.com/tsubauaaa/flutter_d2go
+*/
+
+/*
+TODO figure out why desktop version doesn't work either: https://github.com/facebookresearch/d2go/tree/main/demo
+https://github.com/facebookresearch/d2go/issues/360
+https://github.com/facebookresearch/d2go/issues/337
+https://github.com/facebookresearch/d2go
+
+*/
 class _D2GoPageState extends State<D2GoPage> {
   List<RecognitionModel>? _recognitions;
   File? _selectedImage;
