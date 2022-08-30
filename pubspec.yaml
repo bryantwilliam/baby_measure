@@ -36,6 +36,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_d2go: ^0.6.0
   path_provider: ^2.0.11
+  image_picker: ^0.8.5+3
+  camera: ^0.10.0+1
 
 dev_dependencies:
   flutter_test:
@@ -62,8 +64,13 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/models/d2go.ptl
+    - assets/models/d2go_kp.ptl
+    - assets/models/d2go_mask.ptl
     - assets/models/classes.txt
-    - assets/images/input1.jpg
+    - assets/images/input1.jpeg
+    - assets/images/test1.png
+    - assets/images/test2.jpeg
+    - assets/images/test3.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

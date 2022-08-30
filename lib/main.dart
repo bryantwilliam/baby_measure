@@ -1,8 +1,17 @@
-import 'package:baby_measure/ml_methods/d2go_mtd.dart';
-import 'package:baby_measure/ml_methods/google_ml_toolkit_mtd.dart';
+import 'package:baby_measure/ml_methods/d2go/d2go_page.dart';
+import 'package:baby_measure/ml_methods/google_ml_toolkit/google_ml_toolkit_page.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+List<CameraDescription> cameras = [];
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    cameras = await availableCameras();
+  } on CameraException catch (e) {
+    debugPrint('Error: ${e.code}, Message: ${e.description}');
+  }
   runApp(const MyApp());
 }
 
@@ -46,11 +55,17 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ElevatedButton(
               child: Text("Run DensePose d2go method"),
-              onPressed: D2GoMethod().run,
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => D2GoPage()),
+              ),
             ),
             ElevatedButton(
               child: Text("Run Google ml toolkit method"),
-              onPressed: GoogleMLToolkitMethod().run,
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => GoogleMLToolkitPage()),
+              ),
             ),
           ],
         ),
