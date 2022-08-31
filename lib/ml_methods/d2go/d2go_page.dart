@@ -23,23 +23,31 @@ class D2GoPage extends StatefulWidget {
   State<D2GoPage> createState() => _D2GoPageState();
 }
 
-/* 
-TODO fix keypoints. Figure out why is shown to work in https://github.com/tsubauaaa/flutter_d2go/tree/master/example
-https://github.com/tsubauaaa/flutter_d2go
-*/
+// NOTICE: used the package here: https://github.com/tsubauaaa/flutter_d2go
+
+// TODO: try with baby images.
 
 /*
 TODO figure out why desktop version doesn't work either: https://github.com/facebookresearch/d2go/tree/main/demo
 https://github.com/facebookresearch/d2go/issues/360
 https://github.com/facebookresearch/d2go/issues/337
 https://github.com/facebookresearch/d2go
-
 */
 class _D2GoPageState extends State<D2GoPage> {
   List<RecognitionModel>? _recognitions;
   File? _selectedImage;
-  final List<String> _imageList = ['test1.png', 'test2.jpeg', 'test3.png'];
-  int _index = 0;
+  static const List<String> _modelList = [
+    "d2go_kp.ptl",
+    "d2go_mask.ptl",
+    "d2go.ptl",
+  ];
+  int _modelIndex = 0;
+  static const List<String> _imageList = [
+    "test1.png",
+    "test2.jpeg",
+    "test3.png",
+  ];
+  int _imageIndex = 0;
   int? _imageWidth;
   int? _imageHeight;
   final ImagePicker _picker = ImagePicker();
@@ -51,7 +59,7 @@ class _D2GoPageState extends State<D2GoPage> {
   @override
   void initState() {
     super.initState();
-    loadModel();
+    loadModel(_modelList[0]);
   }
 
   @override
@@ -156,8 +164,8 @@ class _D2GoPageState extends State<D2GoPage> {
     );
   }
 
-  Future loadModel() async {
-    String modelPath = 'assets/models/d2go.ptl';
+  Future<void> loadModel(String fileName) async {
+    String modelPath = 'assets/models/$fileName';
     String labelPath = 'assets/models/classes.txt';
     try {
       await FlutterD2go.loadModel(
@@ -168,6 +176,7 @@ class _D2GoPageState extends State<D2GoPage> {
     } on PlatformException {
       debugPrint('Load model or label file failed.');
     }
+    detectOnce();
   }
 
   Future<File> getImageFileFromAssets(String path) async {
@@ -181,9 +190,12 @@ class _D2GoPageState extends State<D2GoPage> {
     return file;
   }
 
-  Future detect() async {
+  Future<void> detectOnce() async {
+    if (_isLiveModeOn) {
+      return;
+    }
     final image = _selectedImage ??
-        await getImageFileFromAssets('images/${_imageList[_index]}');
+        await getImageFileFromAssets('images/${_imageList[_imageIndex]}');
     final decodedImage = await decodeImageFromList(image.readAsBytesSync());
     final predictions = await FlutterD2go.getImagePrediction(
       image: image,
@@ -232,7 +244,7 @@ class _D2GoPageState extends State<D2GoPage> {
         width: screenWidth,
         child: _selectedImage == null
             ? Image.asset(
-                'assets/images/${_imageList[_index]}',
+                'assets/images/${_imageList[_imageIndex]}',
               )
             : Image.file(_selectedImage!),
       ),
@@ -309,26 +321,37 @@ class _D2GoPageState extends State<D2GoPage> {
           ),
           const SizedBox(height: 48),
           D2GoButton(
-            onPressed: !_isLiveModeOn ? detect : null,
-            text: 'Detect',
+            onPressed: () async {
+              _modelIndex != _modelList.length - 1
+                  ? _modelIndex += 1
+                  : _modelIndex = 0;
+              await loadModel(_modelList[_modelIndex]);
+            },
+            text: 'New Model\n${_modelIndex + 1}/${_imageList.length}',
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 48),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 D2GoButton(
-                    onPressed: () => setState(
-                          () {
-                            _recognitions = null;
-                            if (_selectedImage == null) {
-                              _index != 2 ? _index += 1 : _index = 0;
-                            } else {
-                              _selectedImage = null;
-                            }
-                          },
-                        ),
-                    text: 'Test Image\n${_index + 1}/${_imageList.length}'),
+                  onPressed: () {
+                    setState(
+                      () {
+                        _recognitions = null;
+                        if (_selectedImage == null) {
+                          _imageIndex != _modelList.length - 1
+                              ? _imageIndex += 1
+                              : _imageIndex = 0;
+                        } else {
+                          _selectedImage = null;
+                        }
+                      },
+                    );
+                    detectOnce();
+                  },
+                  text: 'Test Image\n${_imageIndex + 1}/${_imageList.length}',
+                ),
                 D2GoButton(
                     onPressed: () async {
                       final XFile? pickedFile =
