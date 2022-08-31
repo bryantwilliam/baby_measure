@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
+import 'package:path_provider/path_provider.dart';
+
+import '../../main.dart';
+import '../utils.dart';
 
 // NOTICE: This doesn't work on iOS. To make it work later, I can follow requirements here: https://github.com/bharat-biradar/Google-Ml-Kit-plugin
 class GoogleMLToolkitPage extends StatefulWidget {
@@ -27,15 +31,12 @@ class _GoogleMLToolkitPageState extends State<GoogleMLToolkitPage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Using the camera plugin, can change this to camera later: https://github.com/bharat-biradar/Google-Ml-Kit-plugin/tree/master/packages/google_mlkit_commons#creating-an-inputimage
-    final inputImage = InputImage.fromFilePath("assets/models/test2.png");
-
     return Scaffold(
       body: Column(
         children: [
           ElevatedButton(
             onPressed: () async {
-              await processImage(inputImage);
+              await processImage();
             },
             child: Text("Process test image"),
           ),
@@ -44,7 +45,11 @@ class _GoogleMLToolkitPageState extends State<GoogleMLToolkitPage> {
     );
   }
 
-  Future<void> processImage(InputImage inputImage) async {
+  Future<void> processImage() async {
+    // TODO: Using the camera plugin, can change this to camera later: https://github.com/bharat-biradar/Google-Ml-Kit-plugin/tree/master/packages/google_mlkit_commons#creating-an-inputimage
+    final inputImage = InputImage.fromFile(
+      await getImageFileFromAssets('images/${imageNames[1]}'),
+    );
     final List<Pose> poses = await poseDetector.processImage(inputImage);
 
     // TODO render it in this page

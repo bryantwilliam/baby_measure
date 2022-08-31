@@ -4,6 +4,16 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
 List<CameraDescription> cameras = [];
+const List<String> imageNames = [
+  "test1.png",
+  "test2.jpeg",
+  "test3.png",
+];
+const List<String> modelNames = [
+  "d2go_kp.ptl",
+  "d2go_mask.ptl",
+  "d2go.ptl",
+];
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
