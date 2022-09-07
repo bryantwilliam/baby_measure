@@ -8,6 +8,10 @@ const List<String> imageNames = [
   "test1.png",
   "test2.jpeg",
   "test3.png",
+  "baby.jpg",
+  "baby2.png",
+  "baby3.jpg",
+  "baby4.jpg",
 ];
 const List<String> modelNames = [
   "d2go_kp.ptl",

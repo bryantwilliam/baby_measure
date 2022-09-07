@@ -309,7 +309,7 @@ class _D2GoPageState extends State<D2GoPage> {
                   : _modelIndex = 0;
               await loadModel(modelNames[_modelIndex]);
             },
-            text: 'New Model\n${_modelIndex + 1}/${imageNames.length}',
+            text: 'New Model\n${_modelIndex + 1}/${modelNames.length}',
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 48),
@@ -322,7 +322,7 @@ class _D2GoPageState extends State<D2GoPage> {
                       () {
                         _recognitions = null;
                         if (_selectedImage == null) {
-                          _imageIndex != modelNames.length - 1
+                          _imageIndex != imageNames.length - 1
                               ? _imageIndex += 1
                               : _imageIndex = 0;
                         } else {

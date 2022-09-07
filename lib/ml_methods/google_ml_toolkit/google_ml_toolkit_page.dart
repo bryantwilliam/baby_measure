@@ -47,6 +47,7 @@ class _GoogleMLToolkitPageState extends State<GoogleMLToolkitPage> {
 
   Future<void> processImage() async {
     // TODO: Using the camera plugin, can change this to camera later: https://github.com/bharat-biradar/Google-Ml-Kit-plugin/tree/master/packages/google_mlkit_commons#creating-an-inputimage
+    //       And https://github.com/bharat-biradar/Google-Ml-Kit-plugin/blob/master/packages/google_ml_kit/example/lib/vision_detector_views/pose_detector_view.dart
     final inputImage = InputImage.fromFile(
       await getImageFileFromAssets('images/${imageNames[1]}'),
     );
@@ -66,7 +67,7 @@ class _GoogleMLToolkitPageState extends State<GoogleMLToolkitPage> {
       });
 
       // to access specific landmarks
-      final landmark = pose.landmarks[PoseLandmarkType.nose];
+      final landmark = pose.landmarks[PoseLandmarkType.leftEar];
     }
   }
 }
