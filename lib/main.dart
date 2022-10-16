@@ -22,6 +22,12 @@ const List<String> modelNames = [
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    // NOTICE can redo this camera part, following: https://pub.dev/packages/camera
+    cameras = await availableCameras();
+  } on CameraException catch (e) {
+    debugPrint('Error: ${e.code}, Message: ${e.description}');
+  }
   runApp(const MyApp());
 }
 
