@@ -1,5 +1,6 @@
 import 'package:baby_measure/ml_methods/d2go/d2go_page.dart';
-import 'package:baby_measure/ml_methods/google_ml_toolkit/google_ml_toolkit_page.dart';
+import 'package:baby_measure/ml_methods/credit_card_detector.dart';
+import 'package:baby_measure/ml_methods/google_pose/google_pose_page.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
@@ -21,12 +22,6 @@ const List<String> modelNames = [
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  try {
-    // TODO redo this camera part, following: https://pub.dev/packages/camera
-    cameras = await availableCameras();
-  } on CameraException catch (e) {
-    debugPrint('Error: ${e.code}, Message: ${e.description}');
-  }
   runApp(const MyApp());
 }
 
@@ -55,6 +50,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final creditCardDetector = CreditCardDetector();
+
+  @override
+  void dispose() {
+    creditCardDetector.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,14 +75,18 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text("Run DensePose d2go method"),
               onPressed: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => D2GoPage()),
+                MaterialPageRoute(
+                  builder: (context) => D2GoPage(creditCardDetector),
+                ),
               ),
             ),
             ElevatedButton(
               child: Text("Run Google ml toolkit method"),
               onPressed: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => GoogleMLToolkitPage()),
+                MaterialPageRoute(
+                  builder: (context) => GooglePosePage(creditCardDetector),
+                ),
               ),
             ),
           ],
