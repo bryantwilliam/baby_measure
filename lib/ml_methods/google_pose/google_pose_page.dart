@@ -62,11 +62,14 @@ class _GooglePosePageState extends State<GooglePosePage> {
     // https://developers.google.com/ml-kit/vision/pose-detection
     // example: https://github.com/bharat-biradar/Google-Ml-Kit-plugin/blob/master/packages/google_ml_kit/example/lib/vision_detector_views/pose_detector_view.dart
     // example 2 with render: https://github.com/bhaskar2728/MLKit-Pose-Detection-CameraX-With-Video-Recording
+    // painter example: https://github.com/salkuadrat/learning/blob/master/packages/learning_pose_detection/lib/src/painter.dart
+    // painter example 2: https://pub.dev/packages/body_detection
 
     for (Pose pose in poses) {
       // to access all landmarks
       pose.landmarks.forEach((_, landmark) {
         final type = landmark.type;
+
         final x = landmark.x;
         final y = landmark.y;
       });
