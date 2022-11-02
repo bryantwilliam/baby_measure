@@ -130,16 +130,22 @@ class _D2GoPageState extends State<D2GoPage> {
           );
         },
       ).toList());
-    }
 
-    if (_creditCards != null) {
-      for (var creditCard in _creditCards!) {
-        stackChildren.add(creditCard.paintLayer);
+      if (_creditCards != null) {
+        for (var creditCard in _creditCards!) {
+          stackChildren.add(
+            creditCard.getRectPositioned(
+              _imageWidth!.toDouble(),
+              _imageHeight!.toDouble(),
+              screenWidth,
+            ),
+          );
 
-        // TODO calculate real-life pose dimensions from credit card.
-        creditCard.rect;
-        DetectedCreditCard.CREDIT_CARD_HEIGHT_MM;
-        DetectedCreditCard.CREDIT_CARD_WIDTH_MM;
+          // TODO calculate real-life pose dimensions from credit card.
+          creditCard.rect;
+          DetectedCreditCard.CREDIT_CARD_HEIGHT_MM;
+          DetectedCreditCard.CREDIT_CARD_WIDTH_MM;
+        }
       }
     }
 
@@ -157,7 +163,6 @@ class _D2GoPageState extends State<D2GoPage> {
               children: stackChildren,
             ),
           ),
-          const SizedBox(height: 48),
           D2GoButton(
             onPressed: () async {
               _modelIndex != modelNames.length - 1

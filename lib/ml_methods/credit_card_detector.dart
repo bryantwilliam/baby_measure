@@ -1,6 +1,8 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
@@ -24,12 +26,18 @@ class CreditCardDetector {
 
     final List<DetectedCreditCard> detectedCreditCards = [];
 
+    int objectIndex = 0;
     for (DetectedObject detectedObject in objects) {
       final rect = detectedObject.boundingBox;
       final trackingId = detectedObject.trackingId;
 
-      for (Label label in detectedObject.labels) {
-        print('${label.text} ${label.confidence}');
+      objectIndex++;
+      int labelIndex = 0;
+      Label? firstLabel;
+      if (detectedObject.labels.isEmpty) {
+        log("object $objectIndex has no labels");
+      } else {
+        firstLabel = detectedObject.labels[0];
       }
 
       /* TODO: check if credit card and then add it to the list.
@@ -38,6 +46,13 @@ class CreditCardDetector {
         // NOTICE: put a paintlayer widget for the credit card here.
         creditCards.add(DetectedCreditCard(rect, paintLayer));
       }*/
+      detectedCreditCards.add(
+        DetectedCreditCard(
+          rect: rect,
+          label: firstLabel,
+          objIndex: objectIndex,
+        ),
+      );
     }
     return detectedCreditCards;
   }
@@ -50,11 +65,65 @@ class CreditCardDetector {
 class DetectedCreditCard {
   static const double CREDIT_CARD_WIDTH_MM = 85.6;
   static const double CREDIT_CARD_HEIGHT_MM = 53.98;
-  Rect rect;
-  final Placeholder paintLayer; // NOTICE can change to a widget later
+  final Rect rect;
+  final Label? label;
+  final int objIndex;
 
   DetectedCreditCard({
     required this.rect,
-    required this.paintLayer,
+    required this.label,
+    required this.objIndex,
   });
+
+  Positioned getRectPositioned(
+      double imageWidth, double imageHeight, double screenWidth) {
+    final aspectRatio = imageHeight / imageWidth * screenWidth;
+    final widthScale = screenWidth / imageWidth;
+    final heightScale = aspectRatio / imageHeight;
+
+    final left = rect.left * widthScale;
+    final top = rect.top * heightScale;
+    final right = rect.right * widthScale;
+    final bottom = rect.bottom * heightScale;
+    return Positioned(
+      left: left,
+      top: top,
+      width: right - left,
+      height: bottom - top,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+          border: Border.all(
+            color: Color.fromARGB(255, 9, 255, 0),
+            width: 2,
+          ),
+        ),
+        child: Column(
+          children: [
+            Text(
+              "<$objIndex>",
+              style: TextStyle(color: Colors.indigo),
+            ),
+            ...(label != null
+                ? [
+                    Text(
+                      label != null ? label!.text.toString() : "no label",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                    Text(
+                      label != null ? label!.confidence.toString() : "no label",
+                      style: TextStyle(color: Colors.green),
+                    ),
+                  ]
+                : [
+                    Text(
+                      "No Label",
+                      style: TextStyle(color: Colors.red),
+                    )
+                  ]),
+          ],
+        ),
+      ),
+    );
+  }
 }

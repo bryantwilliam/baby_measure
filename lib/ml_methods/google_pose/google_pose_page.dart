@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:baby_measure/ml_methods/credit_card_detector.dart';
@@ -20,6 +21,7 @@ class GooglePosePage extends StatefulWidget {
 class _GooglePosePageState extends State<GooglePosePage> {
   late final PoseDetector poseDetector;
   final CreditCardDetector _googleObjectDetector = CreditCardDetector();
+  List<Widget> _stackChildren = [];
 
   @override
   void initState() {
@@ -41,16 +43,22 @@ class _GooglePosePageState extends State<GooglePosePage> {
         children: [
           ElevatedButton(
             onPressed: () async {
-              await processImage();
+              double screenWidth = MediaQuery.of(context).size.width;
+              await processImage(screenWidth);
             },
             child: Text("Process test image"),
+          ),
+          Expanded(
+            child: Stack(
+              children: _stackChildren,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Future<void> processImage() async {
+  Future<void> processImage(double screenWidth) async {
     File imageFile = await getImageFileFromAssets('images/${imageNames[1]}');
     final inputImage = InputImage.fromFile(
       imageFile,
@@ -80,14 +88,28 @@ class _GooglePosePageState extends State<GooglePosePage> {
 
     var detectedCreditCards =
         await widget.creditCardDetector.getDetectedCreditCards(imageFile);
-    for (var card in detectedCreditCards) {
-      // NOTICE render the card paint layer on this page as well (can add the render layers in a stack)...
-      card.paintLayer;
 
+    var image = Image.file(imageFile);
+
+    setState(() {
+      _stackChildren = [image];
+    });
+
+    if (detectedCreditCards.isNotEmpty) {
+      log("image contains cards");
+    }
+    for (var card in detectedCreditCards) {
       // TODO calculate real-life pose dimensions from credit card.
       card.rect;
       DetectedCreditCard.CREDIT_CARD_HEIGHT_MM;
       DetectedCreditCard.CREDIT_CARD_WIDTH_MM;
+
+      var decodedImage = await decodeImageFromList(imageFile.readAsBytesSync());
+
+      setState(() {
+        _stackChildren.add(card.getRectPositioned(decodedImage.width.toDouble(),
+            decodedImage.height.toDouble(), screenWidth));
+      });
     }
   }
 }
