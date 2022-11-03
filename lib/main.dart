@@ -6,6 +6,13 @@ import 'package:flutter/material.dart';
 
 List<CameraDescription> cameras = [];
 const List<String> imageNames = [
+  "vertical_girl.jpg",
+  "horizontal_girl.jpg",
+  "horizontal_boy.jpg",
+  "vertical_boy.jpg",
+  "paper_both.jpg",
+  "horizontal_both.jpg",
+  "vertical_both.jpg",
   "test1.png",
   "test2.jpeg",
   "test3.png",

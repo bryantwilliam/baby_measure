@@ -69,6 +69,13 @@ flutter:
     - assets/models/d2go_kp.ptl
     - assets/models/d2go_mask.ptl
     - assets/models/classes.txt
+    - assets/images/vertical_girl.jpg
+    - assets/images/horizontal_girl.jpg
+    - assets/images/horizontal_boy.jpg
+    - assets/images/vertical_boy.jpg
+    - assets/images/paper_both.jpg
+    - assets/images/horizontal_both.jpg
+    - assets/images/vertical_both.jpg
     - assets/images/test1.png
     - assets/images/test2.jpeg
     - assets/images/test3.png
