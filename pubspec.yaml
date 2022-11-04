@@ -69,10 +69,23 @@ flutter:
     - assets/models/d2go_kp.ptl
     - assets/models/d2go_mask.ptl
     - assets/models/classes.txt
+    - assets/images/wood6.jpg
+    - assets/images/vertical_boy.jpg
+    - assets/images/wood1.jpg
+    - assets/images/wood2.jpg
+    - assets/images/wood3.jpg
+    - assets/images/wood4.jpg
+    - assets/images/wood5.jpg
+    - assets/images/wood7.jpg
+    - assets/images/wood8.jpg
+    - assets/images/wood9.jpg
+    - assets/images/wood10.jpg
+    - assets/images/wood11.jpg
+    - assets/images/wood12.jpg
+    - assets/images/wood13.jpg
     - assets/images/vertical_girl.jpg
     - assets/images/horizontal_girl.jpg
     - assets/images/horizontal_boy.jpg
-    - assets/images/vertical_boy.jpg
     - assets/images/paper_both.jpg
     - assets/images/horizontal_both.jpg
     - assets/images/vertical_both.jpg

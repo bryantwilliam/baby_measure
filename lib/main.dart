@@ -1,15 +1,28 @@
 import 'package:baby_measure/ml_methods/d2go/d2go_page.dart';
-import 'package:baby_measure/ml_methods/credit_card_detector.dart';
+import 'package:baby_measure/ml_methods/rectangle_detector.dart';
 import 'package:baby_measure/ml_methods/google_pose/google_pose_page.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
 List<CameraDescription> cameras = [];
 const List<String> imageNames = [
+  "wood6.jpg",
+  "vertical_boy.jpg",
+  "wood1.jpg",
+  "wood2.jpg",
+  "wood3.jpg",
+  "wood4.jpg",
+  "wood5.jpg",
+  "wood7.jpg",
+  "wood8.jpg",
+  "wood9.jpg",
+  "wood10.jpg",
+  "wood11.jpg",
+  "wood12.jpg",
+  "wood13.jpg",
   "vertical_girl.jpg",
   "horizontal_girl.jpg",
   "horizontal_boy.jpg",
-  "vertical_boy.jpg",
   "paper_both.jpg",
   "horizontal_both.jpg",
   "vertical_both.jpg",
@@ -64,11 +77,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final creditCardDetector = CreditCardDetector();
+  final rectangleDetector = RectangleDetector();
 
   @override
   void dispose() {
-    creditCardDetector.close();
+    rectangleDetector.close();
     super.dispose();
   }
 
@@ -90,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => D2GoPage(creditCardDetector),
+                  builder: (context) => D2GoPage(rectangleDetector),
                 ),
               ),
             ),
@@ -99,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => GooglePosePage(creditCardDetector),
+                  builder: (context) => GooglePosePage(rectangleDetector),
                 ),
               ),
             ),

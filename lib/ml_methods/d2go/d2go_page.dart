@@ -4,7 +4,7 @@ import 'package:baby_measure/ml_methods/d2go/recognition_model.dart';
 import 'package:baby_measure/ml_methods/d2go/render_boxes.dart';
 import 'package:baby_measure/ml_methods/d2go/render_keypoints.dart';
 import 'package:baby_measure/ml_methods/d2go/render_segments.dart';
-import 'package:baby_measure/ml_methods/credit_card_detector.dart';
+import 'package:baby_measure/ml_methods/rectangle_detector.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,19 +19,17 @@ import '../utils.dart';
 import 'd2go_button.dart';
 
 class D2GoPage extends StatefulWidget {
-  final CreditCardDetector creditCardDetector;
-  const D2GoPage(this.creditCardDetector, {Key? key}) : super(key: key);
+  final RectangleDetector rectangleDetector;
+  const D2GoPage(this.rectangleDetector, {Key? key}) : super(key: key);
 
   @override
   State<D2GoPage> createState() => _D2GoPageState();
 }
 
-// NOTICE: used the package here: https://github.com/tsubauaaa/flutter_d2go
-
 // TODO: try with baby images.
 
 class _D2GoPageState extends State<D2GoPage> {
-  List<DetectedCreditCard>? _creditCards;
+  List<DetectedRectangles>? _rectangleObjects;
 
   List<RecognitionModel>? _recognitions;
   File? _selectedImage;
@@ -132,20 +130,20 @@ class _D2GoPageState extends State<D2GoPage> {
       ).toList());
     }
 
-    if (_creditCards != null) {
-      for (var creditCard in _creditCards!) {
+    if (_rectangleObjects != null) {
+      for (var rectangleObject in _rectangleObjects!) {
         stackChildren.add(
-          creditCard.getRectPositioned(
+          rectangleObject.getRectPositioned(
             _imageWidth!.toDouble(),
             _imageHeight!.toDouble(),
             screenWidth,
           ),
         );
 
-        // TODO calculate real-life pose dimensions from credit card.
-        creditCard.rect;
-        DetectedCreditCard.CREDIT_CARD_HEIGHT_MM;
-        DetectedCreditCard.CREDIT_CARD_WIDTH_MM;
+        // TODO calculate real-life pose dimensions from detected rectangle objects.
+        rectangleObject.rect;
+        DetectedRectangles.REAL_RECTOBJ_HEIGHT;
+        DetectedRectangles.REAL_RECTOBJ_WIDTH;
       }
     }
 
@@ -157,6 +155,7 @@ class _D2GoPageState extends State<D2GoPage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Text("Image: ${imageNames[_imageIndex]}"),
           const SizedBox(height: 48),
           Expanded(
             child: Stack(
@@ -376,15 +375,15 @@ class _D2GoPageState extends State<D2GoPage> {
       ).toList();
     }
 
-    var creditCards =
-        await widget.creditCardDetector.getDetectedCreditCards(image);
+    var rectangleObjects =
+        await widget.rectangleDetector.getDetectedRectangles(image);
 
     setState(
       () {
         _imageWidth = decodedImage.width;
         _imageHeight = decodedImage.height;
         _recognitions = recognitions;
-        _creditCards = creditCards;
+        _rectangleObjects = rectangleObjects;
       },
     );
   }

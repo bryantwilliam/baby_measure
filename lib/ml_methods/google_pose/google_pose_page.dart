@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:baby_measure/ml_methods/credit_card_detector.dart';
+import 'package:baby_measure/ml_methods/rectangle_detector.dart';
 import 'package:baby_measure/ml_methods/google_pose/pose_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
@@ -12,8 +12,8 @@ import '../utils.dart';
 
 // NOTICE: This doesn't work on iOS. To make it work later, I can follow requirements here: https://github.com/bharat-biradar/Google-Ml-Kit-plugin
 class GooglePosePage extends StatefulWidget {
-  final CreditCardDetector creditCardDetector;
-  const GooglePosePage(this.creditCardDetector, {Key? key}) : super(key: key);
+  final RectangleDetector rectangleDetector;
+  const GooglePosePage(this.rectangleDetector, {Key? key}) : super(key: key);
 
   @override
   State<GooglePosePage> createState() => _GooglePosePageState();
@@ -21,9 +21,9 @@ class GooglePosePage extends StatefulWidget {
 
 class _GooglePosePageState extends State<GooglePosePage> {
   late final PoseDetector poseDetector;
-  final CreditCardDetector _googleObjectDetector = CreditCardDetector();
+  final RectangleDetector _googleObjectDetector = RectangleDetector();
   List<Widget> _stackChildren = [];
-  int _imageIndex = 3;
+  int _imageIndex = 0;
 
   @override
   void initState() {
@@ -45,18 +45,36 @@ class _GooglePosePageState extends State<GooglePosePage> {
     return Scaffold(
       body: Column(
         children: [
-          ElevatedButton(
-            onPressed: () async {
-              setState(() {
-                if (_imageIndex >= imageNames.length - 1) {
-                  _imageIndex = 0;
-                } else {
-                  _imageIndex++;
-                }
-              });
-              await process(screenWidth);
-            },
-            child: Text("Next Image"),
+          Text("Image: ${imageNames[_imageIndex]}"),
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: () async {
+                  setState(() {
+                    if (_imageIndex <= 0) {
+                      _imageIndex = imageNames.length - 1;
+                    } else {
+                      _imageIndex--;
+                    }
+                  });
+                  await process(screenWidth);
+                },
+                child: Text("Previous Image"),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  setState(() {
+                    if (_imageIndex >= imageNames.length - 1) {
+                      _imageIndex = 0;
+                    } else {
+                      _imageIndex++;
+                    }
+                  });
+                  await process(screenWidth);
+                },
+                child: Text("Next Image"),
+              ),
+            ],
           ),
           ElevatedButton(
             onPressed: () async {
@@ -85,14 +103,6 @@ class _GooglePosePageState extends State<GooglePosePage> {
 
     var decodedImage = await decodeImageFromList(imageFile.readAsBytesSync());
 
-    // NOTICE render the pose in this page
-    // https://pub.dev/packages/google_mlkit_pose_detection
-    // https://developers.google.com/ml-kit/vision/pose-detection
-    // example: https://github.com/bharat-biradar/Google-Ml-Kit-plugin/blob/master/packages/google_ml_kit/example/lib/vision_detector_views/pose_detector_view.dart
-    // example 2 with render: https://github.com/bhaskar2728/MLKit-Pose-Detection-CameraX-With-Video-Recording
-    // painter example: https://github.com/salkuadrat/learning/blob/master/packages/learning_pose_detection/lib/src/painter.dart
-    // painter example 2: https://pub.dev/packages/body_detection
-
     log("Poses found: ${poses.length}\n\n");
 
     int poseIndex = 0;
@@ -114,8 +124,8 @@ class _GooglePosePageState extends State<GooglePosePage> {
 
     //
 
-    var detectedCreditCards =
-        await widget.creditCardDetector.getDetectedCreditCards(imageFile);
+    var detectedRectangles =
+        await widget.rectangleDetector.getDetectedRectangles(imageFile);
 
     var image = Image.file(imageFile);
 
@@ -123,18 +133,20 @@ class _GooglePosePageState extends State<GooglePosePage> {
       _stackChildren = [image];
     });
 
-    if (detectedCreditCards.isNotEmpty) {
-      log("image contains cards");
+    if (detectedRectangles.isNotEmpty) {
+      log("image contains rectangle objects");
     }
-    for (var card in detectedCreditCards) {
-      // TODO calculate real-life pose dimensions from credit card.
-      card.rect;
-      DetectedCreditCard.CREDIT_CARD_HEIGHT_MM;
-      DetectedCreditCard.CREDIT_CARD_WIDTH_MM;
+    for (var rectangleObject in detectedRectangles) {
+      // TODO calculate real-life pose dimensions from the rectangle object.
+      rectangleObject.rect;
+      DetectedRectangles.REAL_RECTOBJ_HEIGHT;
+      DetectedRectangles.REAL_RECTOBJ_WIDTH;
 
       setState(() {
-        _stackChildren.add(card.getRectPositioned(decodedImage.width.toDouble(),
-            decodedImage.height.toDouble(), screenWidth));
+        _stackChildren.add(rectangleObject.getRectPositioned(
+            decodedImage.width.toDouble(),
+            decodedImage.height.toDouble(),
+            screenWidth));
       });
     }
 

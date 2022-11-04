@@ -10,7 +10,7 @@ import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart
 import '../main.dart';
 import 'utils.dart';
 
-class CreditCardDetector {
+class RectangleDetector {
   final _detector = ObjectDetector(
     options: ObjectDetectorOptions(
       mode: DetectionMode.single,
@@ -19,12 +19,11 @@ class CreditCardDetector {
     ),
   );
 
-  Future<List<DetectedCreditCard>> getDetectedCreditCards(
-      File imageFile) async {
+  Future<List<DetectedRectangles>> getDetectedRectangles(File imageFile) async {
     final List<DetectedObject> objects =
         await _detector.processImage(InputImage.fromFile(imageFile));
 
-    final List<DetectedCreditCard> detectedCreditCards = [];
+    final List<DetectedRectangles> detectedRectangles = [];
 
     int objectIndex = 0;
     for (DetectedObject detectedObject in objects) {
@@ -40,21 +39,15 @@ class CreditCardDetector {
         firstLabel = detectedObject.labels[0];
       }
 
-      /* TODO: check if credit card and then add it to the list.
-      if (is a credit card) {
-        // example: https://github.com/bharat-biradar/Google-Ml-Kit-plugin/blob/master/packages/google_ml_kit/example/lib/vision_detector_views/object_detector_view.dart
-        // NOTICE: put a paintlayer widget for the credit card here.
-        creditCards.add(DetectedCreditCard(rect, paintLayer));
-      }*/
-      detectedCreditCards.add(
-        DetectedCreditCard(
+      detectedRectangles.add(
+        DetectedRectangles(
           rect: rect,
           label: firstLabel,
           objIndex: objectIndex,
         ),
       );
     }
-    return detectedCreditCards;
+    return detectedRectangles;
   }
 
   void close() {
@@ -62,14 +55,14 @@ class CreditCardDetector {
   }
 }
 
-class DetectedCreditCard {
-  static const double CREDIT_CARD_WIDTH_MM = 85.6;
-  static const double CREDIT_CARD_HEIGHT_MM = 53.98;
+class DetectedRectangles {
+  static const int REAL_RECTOBJ_WIDTH = 210;
+  static const int REAL_RECTOBJ_HEIGHT = 297;
   final Rect rect;
   final Label? label;
   final int objIndex;
 
-  DetectedCreditCard({
+  DetectedRectangles({
     required this.rect,
     required this.label,
     required this.objIndex,
