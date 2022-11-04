@@ -28,13 +28,13 @@ class PosePainter extends CustomPainter {
 
     for (final pose in poses) {
       pose.landmarks.forEach((_, landmark) {
-        canvas.drawCircle(
-            Offset(
-              landmark.x * size.width / absoluteImageSize.width,
-              landmark.y * size.height / absoluteImageSize.height,
-            ),
-            1,
-            paint);
+        var offset = Offset(
+          landmark.x * size.width / absoluteImageSize.width,
+          landmark.y * size.height / absoluteImageSize.height,
+        );
+
+        // circle size based on the likelihood. So if it is 95% likelihood, circle will be of 0.95 size.
+        canvas.drawCircle(offset, 1 * landmark.likelihood, paint);
       });
 
       void paintLine(

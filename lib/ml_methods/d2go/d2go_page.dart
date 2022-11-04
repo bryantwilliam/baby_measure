@@ -26,8 +26,6 @@ class D2GoPage extends StatefulWidget {
   State<D2GoPage> createState() => _D2GoPageState();
 }
 
-// TODO: try with baby images.
-
 class _D2GoPageState extends State<D2GoPage> {
   List<DetectedRectangles>? _rectangleObjects;
 
@@ -141,9 +139,7 @@ class _D2GoPageState extends State<D2GoPage> {
         );
 
         // TODO calculate real-life pose dimensions from detected rectangle objects.
-        rectangleObject.rect;
-        DetectedRectangles.REAL_RECTOBJ_HEIGHT;
-        DetectedRectangles.REAL_RECTOBJ_WIDTH;
+        double realLifeFactor = rectangleObject.getReallifeAverageFactor();
       }
     }
 

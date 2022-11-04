@@ -56,8 +56,8 @@ class RectangleDetector {
 }
 
 class DetectedRectangles {
-  static const int REAL_RECTOBJ_WIDTH = 210;
-  static const int REAL_RECTOBJ_HEIGHT = 297;
+  static const int _REAL_RECTOBJ_WIDTH = 210;
+  static const int _REAL_RECTOBJ_HEIGHT = 297;
   final Rect rect;
   final Label? label;
   final int objIndex;
@@ -67,6 +67,12 @@ class DetectedRectangles {
     required this.label,
     required this.objIndex,
   });
+
+  double getReallifeAverageFactor() {
+    double heightFactor = DetectedRectangles._REAL_RECTOBJ_HEIGHT / rect.height;
+    double widthFactor = DetectedRectangles._REAL_RECTOBJ_WIDTH / rect.width;
+    return (widthFactor + heightFactor) / 2;
+  }
 
   Positioned getRectPositioned(
       double imageWidth, double imageHeight, double screenWidth) {
