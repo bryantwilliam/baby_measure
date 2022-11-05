@@ -108,6 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             ElevatedButton(
+              key: const ValueKey('page_google_button'),
               child: Text("Run Google ml toolkit method"),
               onPressed: () => Navigator.push(
                 context,

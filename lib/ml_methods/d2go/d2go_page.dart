@@ -35,7 +35,8 @@ class _D2GoPageState extends State<D2GoPage> {
 
   int _modelIndex = 0;
 
-  int _imageIndex = 0;
+  int _imageIndex = imageNames.length -
+      1; // for performance testing, click next button to go to first image.
   int? _imageWidth;
   int? _imageHeight;
   final ImagePicker _picker = ImagePicker();

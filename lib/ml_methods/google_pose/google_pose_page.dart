@@ -78,6 +78,7 @@ class _GooglePosePageState extends State<GooglePosePage> {
             ],
           ),
           ElevatedButton(
+            key: const ValueKey('process_google_button'),
             onPressed: () async {
               await process(screenWidth);
             },
