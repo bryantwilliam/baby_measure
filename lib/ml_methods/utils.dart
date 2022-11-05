@@ -43,4 +43,20 @@ class Point {
     required this.y,
     this.z = 0,
   });
+
+  static double distOfPoints(List<Point> points) {
+    return points.fold<double>(0, (previousValue, point) {
+      int nextIndex = points.indexOf(point) + 1;
+      if (nextIndex < points.length) {
+        var nextPoint = points.elementAt(nextIndex);
+        return previousValue +
+            getDistance(
+              point,
+              nextPoint,
+            );
+      }
+
+      return previousValue;
+    });
+  }
 }

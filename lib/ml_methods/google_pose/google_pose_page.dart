@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'dart:ui' as ui;
 import '../../main.dart';
 import '../utils.dart';
 
@@ -99,122 +100,166 @@ class _GooglePosePageState extends State<GooglePosePage> {
       imageFile,
     );
 
-    final List<Pose> poses = await poseDetector.processImage(inputImage);
+    setState(() {
+      _stackChildren = [Image.file(imageFile)];
+    });
 
-    var decodedImage = await decodeImageFromList(imageFile.readAsBytesSync());
+    ui.Image decodedImage =
+        await decodeImageFromList(imageFile.readAsBytesSync());
+
+    var detectedRectangles =
+        await widget.rectangleDetector.getDetectedRectangles(imageFile);
+
+    var poses = await poseDetector.processImage(inputImage);
+
+    renderRectangles(detectedRectangles, decodedImage, screenWidth);
+    renderPoses(poses, decodedImage, screenWidth);
 
     log("Poses found: ${poses.length}\n\n");
 
     int poseIndex = 0;
     for (Pose pose in poses) {
       poseIndex++;
-      // to access all landmarks
-      pose.landmarks.forEach((_, landmark) {
-        final type = landmark.type;
-        final liklihood = landmark.likelihood;
-        final x = landmark.x;
-        final y = landmark.y;
-        final z = landmark.z;
-      });
-      log("(pose $poseIndex), landmarks: ${pose.landmarks.length}");
+      log("###################################################################################################################################################################################");
+      log("(Pose $poseIndex), landmarks: ${pose.landmarks.length}");
 
-      // to access specific landmarks
-      final landmark = pose.landmarks[PoseLandmarkType.leftEar];
+      for (var rectangle in detectedRectangles) {
+        log("----------------------------------------------------------------------------------------");
+        log("(Rectangle ${rectangle.objIndex})");
+
+        var realLifeFactor = rectangle.getReallifeAverageFactor();
+        log("pixel rectangle width: ${rectangle.rect.width}");
+        log("pixel rectangle height: ${rectangle.rect.height}");
+        log("real rectangle width: ${realLifeFactor.getProductString(rectangle.rect.width)}");
+        log("real rectangle height: ${realLifeFactor.getProductString(rectangle.rect.height)}");
+
+        log("*************With Z...");
+        logDimensions(pose, realLifeFactor, true);
+        log("*************Without Z...");
+        logDimensions(pose, realLifeFactor, false);
+      }
+    }
+  }
+
+  logDimensions(Pose pose, RealLifeFactorResult realLifeFactor, bool withZ) {
+    Point getLMPoint(PoseLandmarkType lmType) {
+      PoseLandmark lm = pose.landmarks[lmType]!;
+      return Point(
+        x: lm.x,
+        y: lm.y,
+        z: withZ ? lm.z : 0,
+      );
     }
 
-    //
+    double distOfLMs(List<PoseLandmarkType> lmTypes) {
+      List<Point> points = [];
 
-    var detectedRectangles =
-        await widget.rectangleDetector.getDetectedRectangles(imageFile);
+      for (var lmType in lmTypes) {
+        points.add(getLMPoint(lmType));
+      }
 
-    var image = Image.file(imageFile);
-
-    setState(() {
-      _stackChildren = [image];
-    });
-
-    if (detectedRectangles.isNotEmpty) {
-      log("image contains rectangle objects");
+      return Point.distOfPoints(points);
     }
+
+    double armsSpan = distOfLMs([
+      PoseLandmarkType.rightPinky,
+      PoseLandmarkType.rightWrist,
+      PoseLandmarkType.rightElbow,
+      PoseLandmarkType.rightShoulder,
+      PoseLandmarkType.leftShoulder,
+      PoseLandmarkType.leftElbow,
+      PoseLandmarkType.leftWrist,
+      PoseLandmarkType.leftPinky,
+    ]);
+
+    double headWidth = distOfLMs([
+      PoseLandmarkType.rightEar,
+      PoseLandmarkType.leftEar,
+    ]);
+
+    double shoulderWidth = distOfLMs([
+      PoseLandmarkType.rightShoulder,
+      PoseLandmarkType.leftShoulder,
+    ]);
+
+    double hipWidth = distOfLMs([
+      PoseLandmarkType.rightHip,
+      PoseLandmarkType.leftHip,
+    ]);
+
+    double rightLeg = distOfLMs([
+      PoseLandmarkType.rightHip,
+      PoseLandmarkType.rightKnee,
+      PoseLandmarkType.rightAnkle,
+      PoseLandmarkType.rightHeel,
+    ]);
+
+    double leftLeg = distOfLMs([
+      PoseLandmarkType.leftHip,
+      PoseLandmarkType.leftKnee,
+      PoseLandmarkType.leftAnkle,
+      PoseLandmarkType.leftHeel,
+    ]);
+
+    double averageLegLength = (rightLeg + leftLeg) / 2;
+
+    Point middleHip = getMiddlePoint(
+      getLMPoint(PoseLandmarkType.rightHip),
+      getLMPoint(PoseLandmarkType.leftHip),
+    );
+
+    Point middleShoulder = getMiddlePoint(
+      getLMPoint(PoseLandmarkType.rightShoulder),
+      getLMPoint(PoseLandmarkType.leftShoulder),
+    );
+
+    double middleHipToMiddleShoulder = getDistance(
+      middleHip,
+      middleShoulder,
+    );
+
+    Point middleMouth = getMiddlePoint(
+      getLMPoint(PoseLandmarkType.rightMouth),
+      getLMPoint(PoseLandmarkType.leftMouth),
+    );
+
+    double middleShoulderToMiddleMouth = getDistance(
+      middleShoulder,
+      middleMouth,
+    );
+
+    double middleMouthToMiddleEye = getDistance(
+      middleMouth,
+      getMiddlePoint(
+        getLMPoint(PoseLandmarkType.rightEyeInner),
+        getLMPoint(PoseLandmarkType.leftEyeInner),
+      ),
+    );
+    double heightToEyes = averageLegLength +
+        middleHipToMiddleShoulder +
+        middleShoulderToMiddleMouth +
+        middleMouthToMiddleEye;
+
+    // Arm Span, Head Width, Shoulder Width, Hip Width, HeightToEyes
+
+    log("Pixel Arms Span: $armsSpan");
+    log("Pixel Head Width: $headWidth");
+    log("Pixel Shoulder Width: $shoulderWidth");
+    log("Pixel Hip Width: $hipWidth");
+    log("Pixel Height to eyes: $heightToEyes");
+
+    log("Real Arms Span: ${realLifeFactor.getProductString(armsSpan)}");
+    log("Real Head Width: ${realLifeFactor.getProductString(headWidth)}");
+    log("Real Shoulder Width: ${realLifeFactor.getProductString(shoulderWidth)}");
+    log("Real Hip Width: ${realLifeFactor.getProductString(hipWidth)}");
+    log("Real Height to eyes: ${realLifeFactor.getProductString(heightToEyes)}");
+  }
+
+  void renderRectangles(List<DetectedRectangle> detectedRectangles,
+      ui.Image decodedImage, double screenWidth) {
+    log("Rectangles Found: ${detectedRectangles.length}");
+
     for (var rectangleObject in detectedRectangles) {
-      // TODO calculate real-life pose dimensions from detected rectangle objects.
-      double realLifeFactor = rectangleObject.getReallifeAverageFactor();
-
-      Point getLMPoint(PoseLandmarkType lmType) {
-        PoseLandmark lm = poses.first.landmarks[lmType]!;
-        return Point(
-          x: lm.x,
-          y: lm.y,
-          z: lm.z,
-        );
-      }
-
-      double distOfLMs(List<PoseLandmarkType> lmTypes) {
-        return lmTypes.fold<double>(0, (previousValue, lmType) {
-          int nextIndex = lmTypes.indexOf(lmType) + 1;
-          if (nextIndex < lmTypes.length) {
-            var nextLmType = lmTypes.elementAt(lmTypes.indexOf(lmType) - 1);
-            return previousValue +
-                getDistance(
-                  getLMPoint(lmType),
-                  getLMPoint(nextLmType),
-                );
-          }
-
-          return previousValue;
-        });
-      }
-
-      double armsSpam = distOfLMs([
-        PoseLandmarkType.rightPinky,
-        PoseLandmarkType.rightWrist,
-        PoseLandmarkType.rightElbow,
-        PoseLandmarkType.rightShoulder,
-        PoseLandmarkType.leftShoulder,
-        PoseLandmarkType.leftElbow,
-        PoseLandmarkType.leftWrist,
-        PoseLandmarkType.leftPinky,
-      ]);
-
-      double headWidth = distOfLMs([
-        PoseLandmarkType.rightEar,
-        PoseLandmarkType.leftEar,
-      ]);
-
-      double shoulderWidth = getDistance(
-        getLMPoint(PoseLandmarkType.rightShoulder),
-        getLMPoint(PoseLandmarkType.leftShoulder),
-      );
-
-      double hipWidth = getDistance(
-        getLMPoint(PoseLandmarkType.rightHip),
-        getLMPoint(PoseLandmarkType.leftHip),
-      );
-
-      double averageLegLength = (distOfLMs([]) + distOfLMs([])) / 2;
-      double middleHipToMiddleShoulder = getDistance(
-        getMiddlePoint(
-          getLMPoint(PoseLandmarkType.rightHip),
-          getLMPoint(PoseLandmarkType.leftHip),
-        ),
-        getMiddlePoint(
-          getLMPoint(PoseLandmarkType.rightShoulder),
-          getLMPoint(PoseLandmarkType.leftShoulder),
-        ),
-      );
-
-      double middleShoulderToMiddleMouth = 0;
-      double middleMouthToMiddleEye = 0;
-      double heightToEyes = averageLegLength +
-          middleHipToMiddleShoulder +
-          middleShoulderToMiddleMouth +
-          middleMouthToMiddleEye;
-
-      // TODO: finish calculation and print out:
-      // Arm Span, Head Width, Shoulder Width, Hip Width, HeightToEyes
-
-      poses.first.landmarks[PoseLandmarkType.rightPinky];
-
       setState(() {
         _stackChildren.add(rectangleObject.getRectPositioned(
             decodedImage.width.toDouble(),
@@ -222,7 +267,10 @@ class _GooglePosePageState extends State<GooglePosePage> {
             screenWidth));
       });
     }
+  }
 
+  void renderPoses(
+      List<Pose> poses, ui.Image decodedImage, double screenWidth) {
     final PosePainter painter = PosePainter(
       poses,
       Size(

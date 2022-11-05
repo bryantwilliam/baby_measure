@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,11 +20,11 @@ class RectangleDetector {
     ),
   );
 
-  Future<List<DetectedRectangles>> getDetectedRectangles(File imageFile) async {
+  Future<List<DetectedRectangle>> getDetectedRectangles(File imageFile) async {
     final List<DetectedObject> objects =
         await _detector.processImage(InputImage.fromFile(imageFile));
 
-    final List<DetectedRectangles> detectedRectangles = [];
+    final List<DetectedRectangle> detectedRectangles = [];
 
     int objectIndex = 0;
     for (DetectedObject detectedObject in objects) {
@@ -40,7 +41,7 @@ class RectangleDetector {
       }
 
       detectedRectangles.add(
-        DetectedRectangles(
+        DetectedRectangle(
           rect: rect,
           label: firstLabel,
           objIndex: objectIndex,
@@ -55,23 +56,45 @@ class RectangleDetector {
   }
 }
 
-class DetectedRectangles {
+class RealLifeFactorResult {
+  late final double _value;
+  late final double _plusMinus;
+
+  RealLifeFactorResult(double value, double plusMinus) {
+    _value = value;
+    _plusMinus = plusMinus;
+  }
+
+  get value => _value;
+  get plusMinus => _plusMinus;
+
+  String getProductString(double num) {
+    return "${value * num} +/-${plusMinus * num}";
+  }
+}
+
+class DetectedRectangle {
   static const int _REAL_RECTOBJ_WIDTH = 210;
   static const int _REAL_RECTOBJ_HEIGHT = 297;
   final Rect rect;
   final Label? label;
   final int objIndex;
 
-  DetectedRectangles({
+  DetectedRectangle({
     required this.rect,
     required this.label,
     required this.objIndex,
   });
 
-  double getReallifeAverageFactor() {
-    double heightFactor = DetectedRectangles._REAL_RECTOBJ_HEIGHT / rect.height;
-    double widthFactor = DetectedRectangles._REAL_RECTOBJ_WIDTH / rect.width;
-    return (widthFactor + heightFactor) / 2;
+  RealLifeFactorResult getReallifeAverageFactor() {
+    double heightFactor = DetectedRectangle._REAL_RECTOBJ_HEIGHT / rect.height;
+    double widthFactor = DetectedRectangle._REAL_RECTOBJ_WIDTH / rect.width;
+
+    return RealLifeFactorResult(
+        (widthFactor + heightFactor) / 2,
+        (math.max(heightFactor, widthFactor) -
+                math.min(heightFactor, widthFactor)) /
+            2);
   }
 
   Positioned getRectPositioned(

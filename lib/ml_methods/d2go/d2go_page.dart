@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:baby_measure/ml_methods/d2go/recognition_model.dart';
@@ -27,7 +28,7 @@ class D2GoPage extends StatefulWidget {
 }
 
 class _D2GoPageState extends State<D2GoPage> {
-  List<DetectedRectangles>? _rectangleObjects;
+  List<DetectedRectangle>? _rectangleObjects;
 
   List<RecognitionModel>? _recognitions;
   File? _selectedImage;
@@ -104,7 +105,11 @@ class _D2GoPageState extends State<D2GoPage> {
       if (_recognitions!.first.keypoints != null) {
         for (RecognitionModel recognition in _recognitions!) {
           List<Widget> keypointChildren = [];
-          for (Keypoint keypoint in recognition.keypoints!) {
+
+          var keypoints = recognition.keypoints!;
+
+          // render:
+          for (Keypoint keypoint in keypoints) {
             keypointChildren.add(
               RenderKeypoints(
                 keypoint: keypoint,
@@ -114,6 +119,22 @@ class _D2GoPageState extends State<D2GoPage> {
             );
           }
           stackChildren.addAll(keypointChildren);
+          //
+
+          log("###################################################################################################################################################################################");
+          log("(Recognition ${recognition.detectedClass}, ${recognition.confidenceInClass}), keypoints: ${recognition.keypoints!.length}");
+          log("Rectangles found: ${_rectangleObjects?.length}");
+          if (_rectangleObjects != null) {
+            for (var rectangleObject in _rectangleObjects!) {
+              var realLifeFactor = rectangleObject.getReallifeAverageFactor();
+              log("pixel rectangle width: ${rectangleObject.rect.width}");
+              log("pixel rectangle height: ${rectangleObject.rect.height}");
+              log("real rectangle width: ${realLifeFactor.getProductString(rectangleObject.rect.width)}");
+              log("real rectangle height: ${realLifeFactor.getProductString(rectangleObject.rect.height)}");
+
+              logDimensions(keypoints, rectangleObject, realLifeFactor);
+            }
+          }
         }
       }
 
@@ -137,9 +158,6 @@ class _D2GoPageState extends State<D2GoPage> {
             screenWidth,
           ),
         );
-
-        // TODO calculate real-life pose dimensions from detected rectangle objects.
-        double realLifeFactor = rectangleObject.getReallifeAverageFactor();
       }
     }
 
@@ -223,6 +241,100 @@ class _D2GoPageState extends State<D2GoPage> {
         ],
       ),
     );
+  }
+
+  void logDimensions(List<Keypoint> keypoints,
+      DetectedRectangle rectangleObject, RealLifeFactorResult realLifeFactor) {
+    log("(Rectangle ${rectangleObject.objIndex})");
+    rectangleObject.objIndex;
+
+    Point getPoint(int keyPointIndex) {
+      var kp = keypoints[keyPointIndex];
+      return Point(
+        x: kp.x,
+        y: kp.y,
+      );
+    }
+
+    double armsSpan = Point.distOfPoints([
+      getPoint(10),
+      getPoint(8),
+      getPoint(6),
+      getPoint(5),
+      getPoint(7),
+      getPoint(9),
+    ]);
+
+    double headWidth = getDistance(
+      getPoint(4),
+      getPoint(3),
+    );
+
+    double shoulderWidth = getDistance(
+      getPoint(6),
+      getPoint(5),
+    );
+
+    double hipWidth = getDistance(
+      getPoint(12),
+      getPoint(11),
+    );
+
+    double rightLeg = Point.distOfPoints([
+      getPoint(12),
+      getPoint(14),
+      getPoint(16),
+    ]);
+
+    double leftLeg = Point.distOfPoints([
+      getPoint(11),
+      getPoint(13),
+      getPoint(15),
+    ]);
+
+    double averageLegLength = (rightLeg + leftLeg) / 2;
+
+    Point middleHip = getMiddlePoint(
+      getPoint(12),
+      getPoint(11),
+    );
+    Point middleShoulder = getMiddlePoint(
+      getPoint(6),
+      getPoint(5),
+    );
+    double middleHipToMiddleShoulder = getDistance(
+      middleHip,
+      middleShoulder,
+    );
+    double middleShoulderToNose = getDistance(
+      middleShoulder,
+      getPoint(0),
+    );
+    double noseToMiddleEye = getDistance(
+      getPoint(0),
+      getMiddlePoint(
+        getPoint(2),
+        getPoint(1),
+      ),
+    );
+    double heightToEyes = averageLegLength +
+        middleHipToMiddleShoulder +
+        middleShoulderToNose +
+        noseToMiddleEye;
+
+    // Arm Span, Head Width, Shoulder Width, Hip Width, HeightToEyes
+
+    log("Pixel Arms Span: $armsSpan");
+    log("Pixel Head Width: $headWidth");
+    log("Pixel Shoulder Width: $shoulderWidth");
+    log("Pixel Hip Width: $hipWidth");
+    log("Pixel Height to eyes: $heightToEyes");
+
+    log("Real Arms Span: ${realLifeFactor.getProductString(armsSpan)}");
+    log("Real Head Width: ${realLifeFactor.getProductString(headWidth)}");
+    log("Real Shoulder Width: ${realLifeFactor.getProductString(shoulderWidth)}");
+    log("Real Hip Width: ${realLifeFactor.getProductString(hipWidth)}");
+    log("Real Height to eyes: ${realLifeFactor.getProductString(heightToEyes)}");
   }
 
   Future<void> live() async {
