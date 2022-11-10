@@ -69,6 +69,40 @@ flutter:
     - assets/models/d2go_kp.ptl
     - assets/models/d2go_mask.ptl
     - assets/models/classes.txt
+    - assets/images/b1.jpg
+    - assets/images/b2.jpg
+    - assets/images/b3.jpg
+    - assets/images/b4.jpg
+    - assets/images/b5.jpg
+    - assets/images/b6.jpg
+    - assets/images/b7.jpg
+    - assets/images/b8.jpg
+    - assets/images/b9.jpg
+    - assets/images/b10.jpg
+    - assets/images/b11.jpg
+    - assets/images/b12.jpg
+    - assets/images/b13.jpg
+    - assets/images/b14.jpg
+    - assets/images/b15.jpg
+    - assets/images/b16.jpg
+    - assets/images/b17.jpg
+    - assets/images/b18.jpg
+    - assets/images/g1.jpg
+    - assets/images/g2.jpg
+    - assets/images/g3.jpg
+    - assets/images/g4.jpg
+    - assets/images/g5.jpg
+    - assets/images/g6.jpg
+    - assets/images/g7.jpg
+    - assets/images/g8.jpg
+    - assets/images/g9.jpg
+    - assets/images/g10.jpg
+    - assets/images/g11.jpg
+    - assets/images/g12.jpg
+    - assets/images/g13.jpg
+    - assets/images/g14.jpg
+    - assets/images/g15.jpg
+    - assets/images/g16.jpg
     - assets/images/wood6.jpg
     - assets/images/vertical_boy.jpg
     - assets/images/wood1.jpg
@@ -89,14 +123,6 @@ flutter:
     - assets/images/paper_both.jpg
     - assets/images/horizontal_both.jpg
     - assets/images/vertical_both.jpg
-    - assets/images/test1.png
-    - assets/images/test2.jpeg
-    - assets/images/test3.png
-    - assets/images/baby.jpg
-    - assets/images/baby2.png
-    - assets/images/baby3.jpg
-    - assets/images/baby4.jpg
-    - assets/images/girl_nextto_a4.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

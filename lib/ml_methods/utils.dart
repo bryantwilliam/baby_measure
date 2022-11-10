@@ -55,7 +55,6 @@ class Point {
               nextPoint,
             );
       }
-
       return previousValue;
     });
   }
