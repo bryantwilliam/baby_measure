@@ -1,5 +1,6 @@
 # baby_measure
 
+Master's project (project topic given to me by my supervisor)
 An app using 3 methods of machine learning to measure the dimensions of a baby/toddler from a 2D image. Proof of concept.
 
 ## Methods:
